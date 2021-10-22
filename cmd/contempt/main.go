@@ -36,6 +36,7 @@ func main() {
 	projects := contempt.FindProjects(flag.Arg(0), *templateName)
 	for i := range projects {
 		if *filter == "" || projects[i] == *filter {
+			log.Printf("Checking project %s", projects[i])
 			inPath := filepath.Join(flag.Arg(0), projects[i], *templateName)
 			outPath := filepath.Join(flag.Arg(1), projects[i], *outputName)
 			changes, err := contempt.Generate(*sourceLink, inPath, outPath)
@@ -59,6 +60,7 @@ func main() {
 					"--layers",
 					"--tag",
 					imageName,
+					filepath.Join(flag.Arg(1), projects[i]),
 				); err != nil {
 					log.Fatalf("Failed to build %s: %v", projects[i], err)
 				}

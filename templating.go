@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"sync"
 	"text/template"
 
@@ -34,7 +35,7 @@ func image(ref string) string {
 		log.Fatalf("Unable to get latest digest for ref %s: %v", ref, err)
 	}
 	materials[fmt.Sprintf("image:%s", ref)] = digest
-	return fmt.Sprintf("%s/%s@%s", im, ref, digest)
+	return fmt.Sprintf("%s@%s", im, digest)
 }
 
 func alpinePackages(packages ...string) map[string]string {
@@ -99,7 +100,7 @@ func Generate(sourceLink, inFile, outFile string) ([]Change, error) {
 	}
 
 	writer := &bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(writer, inFile, nil); err != nil {
+	if err := tpl.ExecuteTemplate(writer, filepath.Base(inFile), nil); err != nil {
 		return nil, fmt.Errorf("unable to render template file %s: %v", outFile, err)
 	}
 
