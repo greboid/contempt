@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/PuerkitoBio/goquery v1.7.1
+	github.com/csmith/envflag v1.0.0
 	github.com/google/go-containerregistry v0.6.0
 	github.com/hashicorp/go-version v1.3.0
 	gopkg.in/yaml.v2 v2.4.0

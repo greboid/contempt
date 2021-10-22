@@ -11,6 +11,7 @@ import (
 
 	"github.com/csmith/contempt"
 	"github.com/csmith/contempt/sources"
+	"github.com/csmith/envflag"
 )
 
 var (
@@ -25,7 +26,7 @@ var (
 )
 
 func main() {
-	flag.Parse()
+	envflag.Parse()
 
 	if flag.NArg() != 2 {
 		_, _ = fmt.Fprintf(os.Stderr, "Required arguments missing: <input dir> <output dir>\n")
