@@ -99,7 +99,7 @@ func Generate(sourceLink, inFile, outFile string) ([]Change, error) {
 	}
 
 	writer := &bytes.Buffer{}
-	if err := tpl.ExecuteTemplate(writer, outFile, nil); err != nil {
+	if err := tpl.ExecuteTemplate(writer, inFile, nil); err != nil {
 		return nil, fmt.Errorf("unable to render template file %s: %v", outFile, err)
 	}
 
