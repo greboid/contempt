@@ -10,8 +10,8 @@ import (
 
 var (
 	registry     = flag.String("registry", "reg.c5h.io", "Registry to use for pushes and pulls")
-	registryUser = flag.String("registry-user", "", "Username to use when talking to container registries")
-	registryPass = flag.String("registry-pass", "", "Password to use when talking to container registries")
+	registryUser = flag.String("registry-user", "", "Username to use when querying the container registry")
+	registryPass = flag.String("registry-pass", "", "Password to use when querying the container registry")
 )
 
 // LatestDigest finds the latest digest for the given image reference.
