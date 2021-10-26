@@ -34,7 +34,11 @@ func main() {
 		os.Exit(2)
 	}
 
-	projects := contempt.FindProjects(flag.Arg(0), *templateName)
+	projects, err := contempt.FindProjects(flag.Arg(0), *templateName)
+	if err != nil {
+		log.Fatalf("Failed to find projects: %v", err)
+	}
+
 	for i := range projects {
 		if *filter == "" || projects[i] == *filter {
 			log.Printf("Checking project %s", projects[i])

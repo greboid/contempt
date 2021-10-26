@@ -2,6 +2,7 @@ package contempt
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 // FindProjects returns a slice of all images that can be built from this repo, sorted such that images are positioned
 // after all of their dependencies.
-func FindProjects(dir, templateName string) []string {
+func FindProjects(dir, templateName string) ([]string, error) {
 	deps := make(map[string][]string)
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.Name() == templateName {
@@ -39,15 +40,19 @@ func FindProjects(dir, templateName string) []string {
 	}
 
 	for len(deps) > 0 {
+		oldSize := len(deps)
 		for d := range deps {
 			if satisfied(deps[d]) {
 				res = append(res, d)
 				delete(deps, d)
 			}
 		}
+		if len(deps) == oldSize {
+			return nil, fmt.Errorf("could not fully resolve dependencies: %#v", deps)
+		}
 	}
 
-	return res
+	return res, nil
 }
 
 func dependencies(dir, templateName string) []string {

@@ -1,6 +1,7 @@
 # v1.0.4
 
 Fix infinite loop if running with paths other than ".", or if projects are nested multiple directories deep.
+Explicitly error if dependencies can't be resolved.
 
 # v1.0.3
 
