@@ -18,7 +18,7 @@ func FindProjects(dir, templateName string) []string {
 		if d.Name() == templateName {
 			project := filepath.Dir(path)
 			if _, err := os.Stat(filepath.Join(project, "IGNORE")); errors.Is(err, os.ErrNotExist) {
-				deps[project] = dependencies(project, templateName)
+				deps[filepath.Base(project)] = dependencies(project, templateName)
 			}
 		}
 		return nil
