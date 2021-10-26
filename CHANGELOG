@@ -1,3 +1,7 @@
+# v1.0.3
+
+Fixed image digests being truncated to "sha256:" and a single character in commit messages
+
 # v1.0.2
 
 Fixed commit messages showing old/new versions the wrong way around

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"text/template"
 
@@ -34,7 +35,7 @@ func image(ref string) string {
 	if err != nil {
 		log.Fatalf("Unable to get latest digest for ref %s: %v", ref, err)
 	}
-	materials[fmt.Sprintf("image:%s", ref)] = digest
+	materials[fmt.Sprintf("image:%s", ref)] = strings.TrimPrefix(digest, "sha256:")
 	return fmt.Sprintf("%s@%s", im, digest)
 }
 
