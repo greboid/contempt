@@ -135,7 +135,7 @@ func formatChanges(changes []contempt.Change) string {
 		} else if newVersion == "" {
 			builder.WriteString(fmt.Sprintf("; %s %.8s->(unknown)", changes[i].Material, oldVersion))
 		} else {
-			builder.WriteString(fmt.Sprintf("; %s %.8s->%.8s", changes[i].Material, oldVersion, newVersion))
+			builder.WriteString(fmt.Sprintf("; %s %.12s->%.12s", changes[i].Material, oldVersion, newVersion))
 		}
 	}
 

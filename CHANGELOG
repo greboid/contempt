@@ -1,6 +1,7 @@
 # v1.0.3
 
 Fixed image digests being truncated to "sha256:" and a single character in commit messages
+Increased size of versions shown in commit messages from 8 to 12
 
 # v1.0.2
 
