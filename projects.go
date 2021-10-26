@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"text/template"
 )
 
@@ -40,16 +41,19 @@ func FindProjects(dir, templateName string) ([]string, error) {
 	}
 
 	for len(deps) > 0 {
-		oldSize := len(deps)
+		var batch []string
 		for d := range deps {
 			if satisfied(deps[d]) {
-				res = append(res, d)
+				batch = append(batch, d)
 				delete(deps, d)
 			}
 		}
-		if len(deps) == oldSize {
+		if len(batch) == 0 {
 			return nil, fmt.Errorf("could not fully resolve dependencies: %#v", deps)
 		}
+
+		sort.Strings(batch)
+		res = append(res, batch...)
 	}
 
 	return res, nil
