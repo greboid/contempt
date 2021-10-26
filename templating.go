@@ -53,7 +53,7 @@ func alpinePackages(packages ...string) map[string]string {
 func gitHubTag(repo string) string {
 	tag, err := sources.LatestGitHubTag(repo, "")
 	if err != nil {
-		log.Fatalf("Couldn't determine latest tag: %v", err)
+		log.Fatalf("Couldn't determine latest tag for repo %s: %v", repo, err)
 	}
 	materials[fmt.Sprintf("github:%s", repo)] = tag
 	return tag
@@ -62,7 +62,7 @@ func gitHubTag(repo string) string {
 func prefixedGitHubTag(repo, prefix string) string {
 	tag, err := sources.LatestGitHubTag(repo, prefix)
 	if err != nil {
-		log.Fatalf("Couldn't determine latest tag: %v", err)
+		log.Fatalf("Couldn't determine latest tag for repo %s with preifx '%s': %v", repo, prefix, err)
 	}
 	materials[fmt.Sprintf("github:%s", repo)] = tag
 	return tag

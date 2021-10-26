@@ -2,6 +2,7 @@
 
 Fix infinite loop if running with paths other than ".", or if projects are nested multiple directories deep.
 Explicitly error if dependencies can't be resolved.
+Improved error message if GitHub tags couldn't be resolved.
 
 # v1.0.3
 
