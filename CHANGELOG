@@ -1,5 +1,7 @@
 # Unreleased
 
+# v1.1.0
+
 - Make the project build order deterministic.
 - LatestGitHubTag now uses [gitrefs](https://github.com/csmith/gitrefs) to get the latest tag instead of the GitHub API.
 - Fix "Generated from" header when running with absolute paths
