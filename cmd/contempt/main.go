@@ -42,9 +42,8 @@ func main() {
 	for i := range projects {
 		if *filter == "" || projects[i] == *filter {
 			log.Printf("Checking project %s", projects[i])
-			inPath := filepath.Join(flag.Arg(0), projects[i], *templateName)
 			outPath := filepath.Join(flag.Arg(1), projects[i], *outputName)
-			changes, err := contempt.Generate(*sourceLink, inPath, outPath)
+			changes, err := contempt.Generate(*sourceLink, flag.Arg(0), filepath.Join(projects[i], *templateName), outPath)
 			if err != nil {
 				log.Fatalf("Failed to generate project %s: %v", projects[i], err)
 			}

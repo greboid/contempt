@@ -89,9 +89,10 @@ func addRelease(name string, provider func() (version, url, checksum string)) {
 	}
 }
 
-func Generate(sourceLink, inFile, outFile string) ([]Change, error) {
+func Generate(sourceLink, inBase, inRelativePath, outFile string) ([]Change, error) {
 	materials = make(map[string]string)
 	oldMaterials := readBillOfMaterials(outFile)
+	inFile := filepath.Join(inBase, inRelativePath)
 
 	tpl := template.New(inFile)
 	tpl.Funcs(templateFuncs)
@@ -106,7 +107,7 @@ func Generate(sourceLink, inFile, outFile string) ([]Change, error) {
 	}
 
 	bom, _ := json.Marshal(materials)
-	header := fmt.Sprintf("# Generated from %s%s\n# BOM: %s\n\n", sourceLink, inFile, bom)
+	header := fmt.Sprintf("# Generated from %s%s\n# BOM: %s\n\n", sourceLink, inRelativePath, bom)
 
 	content := append([]byte(header), writer.Bytes()...)
 	if err := os.WriteFile(outFile, content, os.FileMode(0600)); err != nil {
