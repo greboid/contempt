@@ -15,14 +15,15 @@ import (
 )
 
 var (
-	templateName = flag.String("template", "Dockerfile.gotpl", "The name of the template files")
-	outputName   = flag.String("output", "Dockerfile", "The name of the output files")
-	filter       = flag.String("project", "", "The name of a single project to generate, instead of all detected ones")
-	sourceLink   = flag.String("source-link", "https://github.com/example/repo/blob/master/", "Link to a browsable version of the source repo")
-	commit       = flag.Bool("commit", false, "Whether to automatically git commit each changed file")
-	build        = flag.Bool("build", false, "Whether to automatically build on successful commit")
-	forceBuild   = flag.Bool("force-build", false, "Whether to build projects regardless of changes")
-	push         = flag.Bool("push", false, "Whether to automatically push on successful commit")
+	templateName     = flag.String("template", "Dockerfile.gotpl", "The name of the template files")
+	outputName       = flag.String("output", "Dockerfile", "The name of the output files")
+	filter           = flag.String("project", "", "The name of a single project to generate, instead of all detected ones")
+	sourceLink       = flag.String("source-link", "https://github.com/example/repo/blob/master/", "Link to a browsable version of the source repo")
+	commit           = flag.Bool("commit", false, "Whether to automatically git commit each changed file")
+	build            = flag.Bool("build", false, "Whether to automatically build on successful commit")
+	forceBuild       = flag.Bool("force-build", false, "Whether to build projects regardless of changes")
+	push             = flag.Bool("push", false, "Whether to automatically push on successful commit")
+	workflowCommands = flag.Bool("workflow-commands", true, "Whether to output GitHub Actions workflow commands to format logs")
 )
 
 func main() {
@@ -41,6 +42,9 @@ func main() {
 
 	for i := range projects {
 		if *filter == "" || projects[i] == *filter {
+			if *workflowCommands {
+                fmt.Printf("::group::%s\n", projects[i])
+            }
 			log.Printf("Checking project %s", projects[i])
 			outPath := filepath.Join(flag.Arg(1), projects[i], *outputName)
 			changes, err := contempt.Generate(*sourceLink, flag.Arg(0), filepath.Join(projects[i], *templateName), outPath)
@@ -77,6 +81,9 @@ func main() {
 						log.Fatalf("Failed to push %s: %v", projects[i], err)
 					}
 				}
+			}
+			if *workflowCommands {
+				fmt.Printf("::endgroup::\n")
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 # Unreleased
 
+- Added option (enabled by default) to print workflow commands for GitHub Actions to group log output.
+
 # v1.1.0
 
 - Make the project build order deterministic.
