@@ -22,10 +22,18 @@ func LatestAlpinePackages(names ...string) (map[string]string, error) {
 
 	res := make(map[string]string)
 	queue := append([]string{}, names...)
+	conflicts := make([]string, 0)
 
 	for len(queue) > 0 {
 		if _, ok := res[queue[0]]; ok {
 			// We've already got a resolution for this package, skip it.
+			queue = queue[1:]
+			continue
+		}
+
+		if strings.HasPrefix(queue[0], "!") {
+			//Package conflicts, ensure installing
+			conflicts = append(conflicts, strings.TrimPrefix(queue[0], "!"))
 			queue = queue[1:]
 			continue
 		}
@@ -37,6 +45,13 @@ func LatestAlpinePackages(names ...string) (map[string]string, error) {
 
 		queue = append(queue[1:], p.Dependencies...)
 		res[p.Name] = p.Version
+	}
+
+	for ri := range conflicts {
+		if _, ok := res[conflicts[ri]]; ok {
+			//Package would conflict, error out
+			return nil, fmt.Errorf("conflicting package found: %s", conflicts[ri])
+		}
 	}
 
 	return res, nil
