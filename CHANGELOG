@@ -1,6 +1,9 @@
 # Unreleased
 
+# v1.2.0
+
 - Added option (enabled by default) to print workflow commands for GitHub Actions to group log output.
+- Skip 'conflicts with' dependencies when resolving Alpine packages (thanks @Greboid)
 
 # v1.1.0
 
