@@ -30,6 +30,12 @@ func LatestAlpinePackages(names ...string) (map[string]string, error) {
 			continue
 		}
 
+		if strings.HasPrefix(queue[0], "!") {
+			//Package conflict, skip it
+			queue = queue[1:]
+			continue
+		}
+
 		p, ok := packages[queue[0]]
 		if !ok {
 			return nil, fmt.Errorf("package required but not found: %s", queue[0])
