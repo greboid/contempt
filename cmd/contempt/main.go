@@ -23,6 +23,7 @@ var (
 	build            = flag.Bool("build", false, "Whether to automatically build on successful commit")
 	forceBuild       = flag.Bool("force-build", false, "Whether to build projects regardless of changes")
 	push             = flag.Bool("push", false, "Whether to automatically push on successful commit")
+	pushRetries      = flag.Int("push-retries", 2, "How many times to retry pushing an image if it fails")
 	workflowCommands = flag.Bool("workflow-commands", true, "Whether to output GitHub Actions workflow commands to format logs")
 )
 
@@ -43,8 +44,8 @@ func main() {
 	for i := range projects {
 		if *filter == "" || projects[i] == *filter {
 			if *workflowCommands {
-                fmt.Printf("::group::%s\n", projects[i])
-            }
+				fmt.Printf("::group::%s\n", projects[i])
+			}
 			log.Printf("Checking project %s", projects[i])
 			outPath := filepath.Join(flag.Arg(1), projects[i], *outputName)
 			changes, err := contempt.Generate(*sourceLink, flag.Arg(0), filepath.Join(projects[i], *templateName), outPath)
@@ -74,11 +75,16 @@ func main() {
 				}
 
 				if *push {
-					if err := runBuildahCommand(
-						"push",
-						imageName,
-					); err != nil {
-						log.Fatalf("Failed to push %s: %v", projects[i], err)
+					success := false
+					for r := 0; r < *pushRetries && !success; r++ {
+						if err := runBuildahCommand("push", imageName); err == nil {
+							success = true
+						} else {
+							log.Printf("Failed to push %s [attempt %d/%d]: %v", projects[i], r+1, *pushRetries+1, err)
+						}
+					}
+					if !success {
+						log.Fatalf("Failed to push %s after %d attempts", projects[i], *pushRetries+1)
 					}
 				}
 			}

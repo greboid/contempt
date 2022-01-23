@@ -61,6 +61,8 @@ Usage of contempt:
     [PROJECT] The name of a single project to generate, instead of all detected ones
 -push
     [PUSH] Whether to automatically push on successful commit
+-push-retries int
+    [PUSH_RETRIES] How many times to retry pushing an image if it fails (default 2)
 -registry string
     [REGISTRY] Registry to use for pushes and pulls (default "reg.c5h.io")
 -registry-pass string
@@ -71,6 +73,8 @@ Usage of contempt:
     [SOURCE_LINK] Link to a browsable version of the source repo (default "https://github.com/example/repo/blob/master/")
 -template string
     [TEMPLATE] The name of the template files (default "Dockerfile.gotpl")
+-workflow-commands
+    [WORKFLOW_COMMANDS] Whether to output GitHub Actions workflow commands to format logs (default true)
 ```
 
 In practice, you will probably want to set the `-registry` and `-source-link` parameters to point

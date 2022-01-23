@@ -1,5 +1,9 @@
 # Unreleased
 
+# v1.3.0
+
+- Added `-push-retries` flag to specify how many times a failed push should be retried. Defaults to 2.
+
 # v1.2.0
 
 - Added option (enabled by default) to print workflow commands for GitHub Actions to group log output.
