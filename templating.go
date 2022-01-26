@@ -64,7 +64,7 @@ func prefixedGitHubTag(repo, prefix string) string {
 	if err != nil {
 		log.Fatalf("Couldn't determine latest tag for repo %s with preifx '%s': %v", repo, prefix, err)
 	}
-	materials[fmt.Sprintf("github:%s", repo)] = tag
+	materials[fmt.Sprintf("github:%s", repo)] = strings.TrimPrefix(tag, prefix)
 	return tag
 }
 

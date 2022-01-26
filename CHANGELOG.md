@@ -1,5 +1,9 @@
 # Unreleased
 
+# v1.3.1
+
+- `prefixed_github_tag` no longer includes the stripped prefix in the bill of materials.
+
 # v1.3.0
 
 - Added `-push-retries` flag to specify how many times a failed push should be retried. Defaults to 2.
