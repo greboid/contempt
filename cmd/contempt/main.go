@@ -77,7 +77,7 @@ func main() {
 
 				if *push {
 					success := false
-					for r := 0; r < *pushRetries && !success; r++ {
+					for r := 0; r <= *pushRetries && !success; r++ {
 						if err := runBuildahCommand("push", imageName); err == nil {
 							success = true
 						} else {

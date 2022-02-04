@@ -5,6 +5,8 @@
 - The `image` template function now accepts fully-qualified image names, and will not
   pre-pend the default registry.
 - Added `git_tag` and `prefixed_git_tag` template functions.
+- Fixed `-push-retries` flag including the original push attempt in the count (i.e.,
+  a value of `2` would retry once; a value of `0` would fail without trying.)
 
 # v1.3.1
 
