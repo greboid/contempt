@@ -3,6 +3,7 @@ package sources
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
@@ -28,7 +29,14 @@ func LatestDigest(ref string) (string, string, error) {
 		})
 	}
 
-	image := fmt.Sprintf("%s/%s", *registry, ref)
+	// If the ref is fully-qualified (i.e., "example.com/image") then don't prepend the registry.
+	var image string
+	if index := strings.IndexByte(ref, '.'); index != -1 && index < strings.IndexByte(ref, '/') {
+		image = ref
+	} else {
+		image = fmt.Sprintf("%s/%s", *registry, ref)
+	}
+
 	digest, err := crane.Digest(image, authOpt)
 	return image, digest, err
 }

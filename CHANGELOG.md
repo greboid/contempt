@@ -2,6 +2,8 @@
 
 - When multiple materials change the commit message is now summarised as "N changes",
   the details are spread over multiple lines, and sorted alphabetically.
+- The {{image}} template tag now accepts fully-qualified image names, and will not
+  pre-pend the default registry.
 
 # v1.3.1
 

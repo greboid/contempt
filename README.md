@@ -91,8 +91,18 @@ and provides the following functions:
 {{image "alpine"}}
 ```
 
-Fetches the latest digest for the given image from the registry, and returns the fully-qualified
+Fetches the latest digest for the given image from the configured registry, and returns the fully-qualified
 name with the digest (e.g. `reg.c5h.io/alpine@sha256:abcd...........`).
+
+If the image name includes a registry, then it is used as-is regardless of the `registry` flag value:
+
+```gotemplate
+{{image "docker.io/library/hello-world"}}
+```
+
+Note: when using multiple registries, you will probably want to avoid specifying the `registery-user`
+and `registry-pass` flags as there is no way to pass in multiple sets of credentials. If the flags
+are not specified, then contempt will instead use the credentials saved by docker or podman. 
 
 ### Registry
 
