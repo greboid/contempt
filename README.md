@@ -164,6 +164,16 @@ list of all packages pinned to their current versions.
 Returns the latest semver tag of the given repository. The "prefixed" variant will discard
 the given prefix from tag names before comparing them using semver.
 
+### Git tag
+
+```gotemplate
+{{git_tag "https://git.sr.ht/~csmith/example"}}
+{{prefixed_git_tag "https://git.sr.ht/~csmith/example" "release-"}}
+```
+
+Returns the latest semver tag of the given repository. The "prefixed" variant will discard
+the given prefix from tag names before comparing them using semver.
+
 ## Example
 
 Check out [csmith/dockerfiles](https://github.com/csmith/dockerfiles) for a collection of

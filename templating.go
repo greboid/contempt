@@ -22,6 +22,8 @@ func init() {
 		"alpine_packages":     alpinePackages,
 		"github_tag":          gitHubTag,
 		"prefixed_github_tag": prefixedGitHubTag,
+		"git_tag":             gitTag,
+		"prefixed_git_tag":    prefixedGitTag,
 		"registry":            sources.Registry,
 	}
 	addRelease("alpine", sources.LatestAlpineRelease)
@@ -62,9 +64,27 @@ func gitHubTag(repo string) string {
 func prefixedGitHubTag(repo, prefix string) string {
 	tag, err := sources.LatestGitHubTag(repo, prefix)
 	if err != nil {
-		log.Fatalf("Couldn't determine latest tag for repo %s with preifx '%s': %v", repo, prefix, err)
+		log.Fatalf("Couldn't determine latest tag for repo %s with prefix '%s': %v", repo, prefix, err)
 	}
 	materials[fmt.Sprintf("github:%s", repo)] = strings.TrimPrefix(tag, prefix)
+	return tag
+}
+
+func gitTag(repo string) string {
+	tag, err := sources.LatestGitTag(repo, "")
+	if err != nil {
+		log.Fatalf("Couldn't determine latest tag for repo %s: %v", repo, err)
+	}
+	materials[fmt.Sprintf("git:%s", repo)] = tag
+	return tag
+}
+
+func prefixedGitTag(repo, prefix string) string {
+	tag, err := sources.LatestGitTag(repo, prefix)
+	if err != nil {
+		log.Fatalf("Couldn't determine latest tag for repo %s with prefix '%s': %v", repo, prefix, err)
+	}
+	materials[fmt.Sprintf("git:%s", repo)] = strings.TrimPrefix(tag, prefix)
 	return tag
 }
 

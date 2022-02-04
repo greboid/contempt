@@ -2,8 +2,9 @@
 
 - When multiple materials change the commit message is now summarised as "N changes",
   the details are spread over multiple lines, and sorted alphabetically.
-- The {{image}} template tag now accepts fully-qualified image names, and will not
+- The `image` template function now accepts fully-qualified image names, and will not
   pre-pend the default registry.
+- Added `git_tag` and `prefixed_git_tag` template functions.
 
 # v1.3.1
 
