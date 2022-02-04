@@ -1,5 +1,7 @@
 # Unreleased
 
+# v1.4.0
+
 - When multiple materials change the commit message is now summarised as "N changes",
   the details are spread over multiple lines, and sorted alphabetically.
 - The `image` template function now accepts fully-qualified image names, and will not
