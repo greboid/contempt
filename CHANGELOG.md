@@ -1,5 +1,8 @@
 # Unreleased
 
+- When multiple materials change the commit message is now summarised as "N changes",
+  the details are spread over multiple lines, and sorted alphabetically.
+
 # v1.3.1
 
 - `prefixed_github_tag` no longer includes the stripped prefix in the bill of materials.

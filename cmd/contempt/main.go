@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/csmith/contempt"
@@ -140,23 +141,33 @@ func runBuildahCommand(args ...string) error {
 }
 
 func formatChanges(changes []contempt.Change) string {
+	if len(changes) == 0 {
+		return "no detected changes"
+	}
+
 	builder := strings.Builder{}
+
+	if len(changes) > 1 {
+		builder.WriteString(fmt.Sprintf("%d changes\n", len(changes)))
+
+		sort.Slice(changes, func(i, j int) bool {
+			return changes[i].Material < changes[j].Material
+		})
+	}
+
 	for i := range changes {
 		oldVersion := changes[i].Old
 		newVersion := changes[i].New
 		if oldVersion == "" && newVersion == "" {
-			builder.WriteString(fmt.Sprintf("; %s unknown changes", changes[i].Material))
+			builder.WriteString(fmt.Sprintf("\n%s unknown changes", changes[i].Material))
 		} else if oldVersion == "" {
-			builder.WriteString(fmt.Sprintf("; %s (unknown)->%.8s", changes[i].Material, newVersion))
+			builder.WriteString(fmt.Sprintf("\n%s (unknown)->%.8s", changes[i].Material, newVersion))
 		} else if newVersion == "" {
-			builder.WriteString(fmt.Sprintf("; %s %.8s->(unknown)", changes[i].Material, oldVersion))
+			builder.WriteString(fmt.Sprintf("\n%s %.8s->(unknown)", changes[i].Material, oldVersion))
 		} else {
-			builder.WriteString(fmt.Sprintf("; %s %.12s->%.12s", changes[i].Material, oldVersion, newVersion))
+			builder.WriteString(fmt.Sprintf("\n%s %.12s->%.12s", changes[i].Material, oldVersion, newVersion))
 		}
 	}
 
-	if builder.Len() == 0 {
-		return "no detected changes"
-	}
-	return strings.TrimPrefix(builder.String(), "; ")
+	return strings.TrimPrefix(builder.String(), "\n")
 }
