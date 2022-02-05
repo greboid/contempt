@@ -1,5 +1,9 @@
 # Unreleased
 
+# v1.4.1
+
+- Fix dependency resolution when using fully-qualified names in the `image` template function.
+
 # v1.4.0
 
 - When multiple materials change the commit message is now summarised as "N changes",

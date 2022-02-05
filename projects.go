@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strings"
 	"text/template"
 )
 
@@ -66,7 +67,10 @@ func dependencies(dir, templateName string) []string {
 		out := reflect.ValueOf(templateFuncs[f]).Type().Out(0).Kind()
 		if f == "image" {
 			fakeFunks[f] = func(dep string) string {
-				res = append(res, dep)
+				// Ignore fully-qualified images like "docker.io/library/alpine"
+				if index := strings.IndexByte(dep, '.'); index == -1 || index > strings.IndexByte(dep, '/') {
+					res = append(res, dep)
+				}
 				return ""
 			}
 		} else if out == reflect.Map {
