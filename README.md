@@ -100,9 +100,7 @@ If the image name includes a registry, then it is used as-is regardless of the `
 {{image "docker.io/library/hello-world"}}
 ```
 
-Note: when using multiple registries, you will probably want to avoid specifying the `registery-user`
-and `registry-pass` flags as there is no way to pass in multiple sets of credentials. If the flags
-are not specified, then contempt will instead use the credentials saved by docker or podman. 
+Note: see below for information on passing credentials when using more than one registry.
 
 ### Registry
 
@@ -173,6 +171,37 @@ the given prefix from tag names before comparing them using semver.
 
 Returns the latest semver tag of the given repository. The "prefixed" variant will discard
 the given prefix from tag names before comparing them using semver.
+
+## Dealing with registry credentials
+
+There are two cases in which contempt requires credentials: checking the latest digest for an image in a non-public
+registry (when the `{{image}}` template function is used), and pushing built images (when the `-push` flag is used).
+
+### Checking digests
+
+You can supply a single set of credentials to use for checking digests using the `-registry-user` and `-registry-pass`
+flags (or associated environment variables). If these options aren't passed and the registry is not public, then
+credentials will be read from `~/.docker/config.json` if it exists, else `${XDG_RUNTIME_DIR}/containers/auth.json`.
+
+### Pushing
+
+For pushes, contempt expects `buildah` to handle authentication for it. To that end, you will probably want to call
+`buildah login` before running contempt. Buildah will also read from `~/.docker/config.json` so a `docker login`
+will also suffice.
+
+### GitHub Actions
+
+If you are running contempt using GitHub Actions (or possibly other CI tooling) and need to supply multiple sets
+of credentials for the `{{image}}` function, you may encounter a number of inconvenient issues:
+
+- The `XDG_RUNTIME_DIR` env var is not set, and the `/run/user` directory is not writable, meaning `buildah login`
+  stores its credentials in `/var/tmp/containers-user-1001/containers/containers/auth.json`. Contempt will not
+  read from this location when trying to find credentials for the `{{image}}` function.
+- The default actions image comes pre-supplied with a `~/.docker/config.json` with credentials for Docker Hub.
+  Because this file exists contempt won't even attempt to read `${XDG_RUNTIME_DIR}/containers/auth.json`, even
+  if you've set the environment variable to a sensible value.
+
+The simplest way to deal with this situation is to use `docker login` to write credentials to Docker's config file.
 
 ## Example
 
