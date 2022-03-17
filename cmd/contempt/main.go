@@ -13,12 +13,13 @@ import (
 	"github.com/csmith/contempt"
 	"github.com/csmith/contempt/sources"
 	"github.com/csmith/envflag"
+	"golang.org/x/exp/slices"
 )
 
 var (
 	templateName     = flag.String("template", "Dockerfile.gotpl", "The name of the template files")
 	outputName       = flag.String("output", "Dockerfile", "The name of the output files")
-	filter           = flag.String("project", "", "The name of a single project to generate, instead of all detected ones")
+	filter           = flag.String("project", "", "A comma-separated list of projects to generate, instead of all detected ones")
 	sourceLink       = flag.String("source-link", "https://github.com/example/repo/blob/master/", "Link to a browsable version of the source repo")
 	commit           = flag.Bool("commit", false, "Whether to automatically git commit each changed file")
 	build            = flag.Bool("build", false, "Whether to automatically build on successful commit")
@@ -42,8 +43,10 @@ func main() {
 		log.Fatalf("Failed to find projects: %v", err)
 	}
 
+	filtered := strings.Split(*filter, ",")
+
 	for i := range projects {
-		if *filter == "" || projects[i] == *filter {
+		if len(filtered) == 0 || slices.Contains(filtered, projects[i]) {
 			if *workflowCommands {
 				fmt.Printf("::group::%s\n", projects[i])
 			}

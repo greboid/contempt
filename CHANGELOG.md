@@ -1,5 +1,7 @@
 # Unreleased
 
+- The `--project` flag can now contain multiple projects separated by commas.
+
 # v1.4.1
 
 - Fix dependency resolution when using fully-qualified names in the `image` template function.
