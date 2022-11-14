@@ -1,6 +1,7 @@
 # Unreleased
 
 - The `--project` flag can now contain multiple projects separated by commas.
+- No longer recurses into directories which start with a `.` (e.g. `.git`) when finding projects.
 
 # v1.4.1
 

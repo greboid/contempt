@@ -18,6 +18,10 @@ import (
 func FindProjects(dir, templateName string) ([]string, error) {
 	deps := make(map[string][]string)
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() && strings.HasPrefix(d.Name(), ".") {
+			return filepath.SkipDir
+		}
+
 		if d.Name() == templateName {
 			project := filepath.Dir(path)
 			if _, err := os.Stat(filepath.Join(project, "IGNORE")); errors.Is(err, os.ErrNotExist) {
