@@ -17,7 +17,11 @@ import (
 // after all of their dependencies.
 func FindProjects(dir, templateName string) ([]string, error) {
 	deps := make(map[string][]string)
-	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if d.IsDir() && strings.HasPrefix(d.Name(), ".") {
 			return filepath.SkipDir
 		}
@@ -30,6 +34,9 @@ func FindProjects(dir, templateName string) ([]string, error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	var res []string
 	satisfied := func(reqs []string) bool {

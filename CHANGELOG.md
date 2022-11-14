@@ -2,6 +2,7 @@
 
 - The `--project` flag can now contain multiple projects separated by commas.
 - No longer recurses into directories which start with a `.` (e.g. `.git`) when finding projects.
+- Now properly reports errors when finding projects, instead of panicing.
 
 # v1.4.1
 
