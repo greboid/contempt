@@ -25,6 +25,7 @@ func init() {
 		"git_tag":             gitTag,
 		"prefixed_git_tag":    prefixedGitTag,
 		"registry":            sources.Registry,
+		"regex_url_content":   regexURLContent,
 	}
 	addRelease("alpine", sources.LatestAlpineRelease)
 	addRelease("golang", sources.LatestGolangRelease)
@@ -86,6 +87,16 @@ func prefixedGitTag(repo, prefix string) string {
 	}
 	materials[fmt.Sprintf("git:%s", repo)] = strings.TrimPrefix(tag, prefix)
 	return tag
+}
+
+func regexURLContent(name, url, regex string) string {
+	res, err := sources.RegexURLContent(url, regex)
+	if err != nil {
+		log.Fatalf("Couldn't find regex in url '%s'", name)
+	}
+	log.Printf("Version: %s", res)
+	materials[fmt.Sprintf("regexurl:%s", name)] = res
+	return res
 }
 
 func addRelease(name string, provider func() (version, url, checksum string)) {
