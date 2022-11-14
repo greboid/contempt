@@ -46,7 +46,7 @@ func main() {
 	filtered := strings.Split(*filter, ",")
 
 	for i := range projects {
-		if len(filtered) == 0 || slices.Contains(filtered, projects[i]) {
+		if *filter == "" || slices.Contains(filtered, projects[i]) {
 			if *workflowCommands {
 				fmt.Printf("::group::%s\n", projects[i])
 			}
