@@ -17,6 +17,9 @@ import (
 // after all of their dependencies.
 func FindProjects(dir, templateName string) ([]string, error) {
 	deps := make(map[string][]string)
+	if _, err := os.Stat(dir); err != nil {
+		return nil, fmt.Errorf("%s does not exist", dir)
+	}
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.Name() == templateName {
 			project := filepath.Dir(path)
