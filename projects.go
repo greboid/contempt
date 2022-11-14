@@ -21,6 +21,9 @@ func FindProjects(dir, templateName string) ([]string, error) {
 		return nil, fmt.Errorf("%s does not exist", dir)
 	}
 	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if d != nil && d.IsDir() && strings.HasPrefix(path, dir+"/.git") {
+			return filepath.SkipDir
+		}
 		if d.Name() == templateName {
 			project := filepath.Dir(path)
 			if _, err := os.Stat(filepath.Join(project, "IGNORE")); errors.Is(err, os.ErrNotExist) {
