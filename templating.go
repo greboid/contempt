@@ -94,7 +94,6 @@ func regexURLContent(name, url, regex string) string {
 	if err != nil {
 		log.Fatalf("Couldn't find regex in url '%s'", name)
 	}
-	log.Printf("Version: %s", res)
 	materials[fmt.Sprintf("regexurl:%s", name)] = res
 	return res
 }
