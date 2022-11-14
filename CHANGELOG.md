@@ -1,5 +1,10 @@
 # Unreleased
 
+# v1.5.1
+
+- Fixed issue where all projects are ignored if the path is given as `.` (like in
+  the examples in the README...)
+
 # v1.5.0
 
 - The `--project` flag can now contain multiple projects separated by commas.

@@ -38,7 +38,12 @@ func main() {
 		os.Exit(2)
 	}
 
-	projects, err := contempt.FindProjects(flag.Arg(0), *templateName)
+	projectDir, err := filepath.Abs(flag.Arg(0))
+	if err != nil {
+		log.Fatalf("Failed to resolve project directory: %v", err)
+	}
+
+	projects, err := contempt.FindProjects(projectDir, *templateName)
 	if err != nil {
 		log.Fatalf("Failed to find projects: %v", err)
 	}
