@@ -2,9 +2,11 @@ package sources
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -75,4 +77,22 @@ func FindInHtml(url string, selector string) ([]string, error) {
 		results = append(results, selection.Text())
 	})
 	return results, nil
+}
+
+func RegexURLContent(url string, regex string) (string, error) {
+	re := regexp.MustCompile(regex)
+	res, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+	result := re.FindSubmatch(body)
+	if len(result) == 0 {
+		return "", errors.New("no match found")
+	}
+	return string(result[1]), nil
 }

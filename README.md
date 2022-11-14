@@ -172,6 +172,16 @@ the given prefix from tag names before comparing them using semver.
 Returns the latest semver tag of the given repository. The "prefixed" variant will discard
 the given prefix from tag names before comparing them using semver.
 
+### Regex URL content
+
+```gotemplate
+{{regex_url_content "google_button" "https://www.google.com/" "I'm feeling (L[a-z]+)"}}
+
+Requests the given URL over HTTP and attempts to match the regular expression.
+Returns the text captured by the first capturing group in the regex.
+The first argument is a friendly name used for logging and BOM tracking.
+```
+
 ## Dealing with registry credentials
 
 There are two cases in which contempt requires credentials: checking the latest digest for an image in a non-public
