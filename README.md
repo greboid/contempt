@@ -136,9 +136,12 @@ Returns the URL and checksum for the latest release of Golang.
 
 {{postgres14_url}}
 {{postgres14_checksum}}
+
+{{postgres15_url}}
+{{postgres15_checksum}}
 ```
 
-Returns the URL and checksum for the latest release of Postgres 13 or 14.
+Returns the URL and checksum for the latest release of Postgres 13, 14 or 15.
 
 ### Alpine packages
 

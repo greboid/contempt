@@ -1,5 +1,9 @@
 # Unreleased
 
+# v1.6.0
+
+- Added `{{postgres15_url}}` and `{{postgres15_checksum}}` template functions
+
 # v1.5.1
 
 - Fixed issue where all projects are ignored if the path is given as `.` (like in

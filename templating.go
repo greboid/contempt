@@ -31,6 +31,7 @@ func init() {
 	addRelease("golang", sources.LatestGolangRelease)
 	addRelease("postgres13", sources.LatestPostgresRelease("13"))
 	addRelease("postgres14", sources.LatestPostgresRelease("14"))
+	addRelease("postgres15", sources.LatestPostgresRelease("15"))
 }
 
 func image(ref string) string {
