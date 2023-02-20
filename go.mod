@@ -3,7 +3,7 @@ module github.com/csmith/contempt
 go 1.18
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/csmith/envflag v1.0.0
 	github.com/csmith/gitrefs v1.0.0
 	github.com/google/go-containerregistry v0.13.0
@@ -27,7 +27,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
