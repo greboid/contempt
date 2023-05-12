@@ -1,5 +1,9 @@
 # Unreleased
 
+# v1.6.1
+
+- Ignore `~x.x` version selectors in apk dependencies (thanks @greboid)
+
 # v1.6.0
 
 - Added `{{postgres15_url}}` and `{{postgres15_checksum}}` template functions
