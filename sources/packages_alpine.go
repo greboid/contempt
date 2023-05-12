@@ -50,7 +50,7 @@ func LatestAlpinePackages(names ...string) (map[string]string, error) {
 
 var apkPackageCache map[string]*packageInfo
 
-// apkPackageInfos returns a map of all apk pacman packages and their latest info.
+// apkPackageInfos returns a map of all apk packages and their latest info.
 func apkPackageInfos() (map[string]*packageInfo, error) {
 	if apkPackageCache != nil {
 		return apkPackageCache, nil
@@ -156,7 +156,7 @@ type packageInfo struct {
 
 // stripVersion removes version qualifiers from a package name such as `foo>=1.2`.
 func stripVersion(name string) string {
-	i := strings.IndexAny(name, ">=<")
+	i := strings.IndexAny(name, ">=<~")
 	if i > -1 {
 		return name[0:i]
 	}
