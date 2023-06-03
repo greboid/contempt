@@ -1,5 +1,13 @@
 # Contempt
 
+Note: this repository currently contains the released version of contempt
+under `cmd/contempt`, and new work-in-progress commands under
+`cmd/contempt-generator`, `cmd/contempt-writer` and `cmd/contempt-builder`.
+These new commands are not yet finished, and all the documentation below
+refers to the old, single command.
+
+---
+
 Contempt is a tool to generate Dockerfiles (or Containerfiles) from templates.
 
 It comes with support for various useful functions for getting the latest versions
