@@ -1,11 +1,10 @@
-package main
+package internal
 
 import (
+	"github.com/stretchr/testify/assert"
 	"io/fs"
 	"testing"
 	"testing/fstest"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_findFiles(t *testing.T) {
@@ -94,7 +93,7 @@ func Test_findFiles(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findFiles(tt.args.f, tt.args.matcher)
+			got, err := FindFiles(tt.args.f, tt.args.matcher)
 
 			if tt.wantErr {
 				assert.Error(t, err)
