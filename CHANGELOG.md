@@ -1,5 +1,12 @@
 # Unreleased
 
+# v1.7.0
+
+- Add orchestrator binary, for generating configs based on the dependencies between projects.
+  This can be used to (for example) generate a GitHub Actions workflow file which contains a
+  separate job for each project, with the dependencies properly expressed between them. A
+  future version of contempt will better support this single-project-at-a-time usecase.
+
 # v1.6.1
 
 - Ignore `~x.x` version selectors in apk dependencies (thanks @greboid)
