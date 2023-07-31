@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/csmith/envflag v1.0.0
-	github.com/csmith/gitrefs v1.0.0
+	github.com/csmith/gitrefs v1.1.1
 	github.com/google/go-containerregistry v0.15.2
 	github.com/hashicorp/go-version v1.6.0
 	github.com/stretchr/testify v1.8.4
