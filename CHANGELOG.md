@@ -1,5 +1,10 @@
 # Unreleased
 
+# 1.7.1
+
+- Update gitrefs dependency, which fixes issue where contempt will randomly
+  chose between tags if they're all the same semver (e.g. `v1.2.3` and `1.2.3`)
+
 # v1.7.0
 
 - Add orchestrator binary, for generating configs based on the dependencies between projects.
