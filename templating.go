@@ -26,6 +26,9 @@ func init() {
 		"prefixed_git_tag":    prefixedGitTag,
 		"registry":            sources.Registry,
 		"regex_url_content":   regexURLContent,
+		"increment_int": func(x int) int {
+			return x + 1
+		},
 	}
 	addRelease("alpine", sources.LatestAlpineRelease)
 	addRelease("golang", sources.LatestGolangRelease)
