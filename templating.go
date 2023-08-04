@@ -3,33 +3,36 @@ package contempt
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/csmith/contempt/sources"
 )
 
 var templateFuncs template.FuncMap
+var data map[string]interface{}
 
 func init() {
-	templateFuncs = template.FuncMap{
-		"image":               image,
-		"alpine_packages":     alpinePackages,
-		"github_tag":          gitHubTag,
-		"prefixed_github_tag": prefixedGitHubTag,
-		"git_tag":             gitTag,
-		"prefixed_git_tag":    prefixedGitTag,
-		"registry":            sources.Registry,
-		"regex_url_content":   regexURLContent,
-		"increment_int": func(x int) int {
-			return x + 1
-		},
-	}
+	data = make(map[string]interface{})
+	templateFuncs = sprig.GenericFuncMap()
+	templateFuncs["image"] = image
+	templateFuncs["alpine_packages"] = alpinePackages
+	templateFuncs["github_tag"] = gitHubTag
+	templateFuncs["prefixed_github_tag"] = prefixedGitHubTag
+	templateFuncs["git_tag"] = gitTag
+	templateFuncs["prefixed_git_tag"] = prefixedGitTag
+	templateFuncs["registry"] = sources.Registry
+	templateFuncs["regex_url_content"] = regexURLContent
+	templateFuncs["partial"] = partial
+	templateFuncs["set"] = set
 	addRelease("alpine", sources.LatestAlpineRelease)
 	addRelease("golang", sources.LatestGolangRelease)
 	addRelease("postgres13", sources.LatestPostgresRelease("13"))
@@ -121,6 +124,46 @@ func addRelease(name string, provider func() (version, url, checksum string)) {
 		check()
 		return checksum
 	}
+}
+
+func set(name string, variable any) string {
+	variableType := reflect.ValueOf(variable).Type()
+	if variableType.Kind() == reflect.Map {
+		if variableType.Elem().Kind() == reflect.String {
+			data[name] = variable.(map[string]string)
+		} else if variableType.Elem().Kind() == reflect.Int {
+			data[name] = variable.(map[string]int)
+		} else if variableType.Elem().Kind() == reflect.Interface {
+			data[name] = variable.(map[string]interface{})
+		}
+	} else if variableType.Kind() == reflect.Slice {
+		if variableType.Elem().Kind() == reflect.String {
+			data[name] = variable.([]string)
+		} else if variableType.Elem().Kind() == reflect.Int {
+			data[name] = variable.(map[string]int)
+		} else if variableType.Elem().Kind() == reflect.Interface {
+			data[name] = variable.([]interface{})
+		}
+	} else {
+		data[name] = variable
+	}
+	return ""
+}
+
+func partial(name string) string {
+	inFile := filepath.Join(flag.Arg(0), "./_partials", name)
+	tpl := template.New(inFile)
+	tpl.Funcs(templateFuncs)
+
+	if _, err := tpl.ParseFiles(inFile); err != nil {
+		log.Fatalf("unable to parse partial %s: %v", inFile, err)
+	}
+
+	writer := &bytes.Buffer{}
+	if err := tpl.ExecuteTemplate(writer, filepath.Base(inFile), data); err != nil {
+		log.Fatalf("unable to parse partial %s: %v", inFile, err)
+	}
+	return writer.String()
 }
 
 func Generate(sourceLink, inBase, inRelativePath, outFile string) ([]Change, error) {
