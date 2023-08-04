@@ -13,7 +13,6 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/Masterminds/sprig/v3"
 	"github.com/csmith/contempt/sources"
 )
 
@@ -22,17 +21,22 @@ var data map[string]interface{}
 
 func init() {
 	data = make(map[string]interface{})
-	templateFuncs = sprig.GenericFuncMap()
-	templateFuncs["image"] = image
-	templateFuncs["alpine_packages"] = alpinePackages
-	templateFuncs["github_tag"] = gitHubTag
-	templateFuncs["prefixed_github_tag"] = prefixedGitHubTag
-	templateFuncs["git_tag"] = gitTag
-	templateFuncs["prefixed_git_tag"] = prefixedGitTag
-	templateFuncs["registry"] = sources.Registry
-	templateFuncs["regex_url_content"] = regexURLContent
-	templateFuncs["partial"] = partial
-	templateFuncs["set"] = set
+	templateFuncs = template.FuncMap{
+		"image":               image,
+		"alpine_packages":     alpinePackages,
+		"github_tag":          gitHubTag,
+		"prefixed_github_tag": prefixedGitHubTag,
+		"git_tag":             gitTag,
+		"prefixed_git_tag":    prefixedGitTag,
+		"registry":            sources.Registry,
+		"regex_url_content":   regexURLContent,
+		"increment_int": func(x int) int {
+			return x + 1
+		},
+		"list":    list,
+		"set":     set,
+		"partial": partial,
+	}
 	addRelease("alpine", sources.LatestAlpineRelease)
 	addRelease("golang", sources.LatestGolangRelease)
 	addRelease("postgres13", sources.LatestPostgresRelease("13"))
@@ -124,6 +128,10 @@ func addRelease(name string, provider func() (version, url, checksum string)) {
 		check()
 		return checksum
 	}
+}
+
+func list(v ...interface{}) []interface{} {
+	return v
 }
 
 func set(name string, variable any) string {
