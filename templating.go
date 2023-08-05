@@ -30,6 +30,7 @@ func init() {
 		"regex_url_content":   regexURLContent,
 		"increment_int":       incrementByOne,
 		"list":                list,
+		"tagsafe":             tagsafe,
 	}
 	addRelease(templateFuncs, "alpine", sources.LatestAlpineRelease)
 	addRelease(templateFuncs, "golang", sources.LatestGolangRelease)
@@ -132,6 +133,10 @@ func addRelease(funcs template.FuncMap, name string, provider func() (version, u
 	}
 }
 
+func tagsafe(tag string) string {
+	return strings.ReplaceAll(tag, "-", "")
+}
+
 func incrementByOne(x int) int {
 	return x + 1
 }
@@ -140,8 +145,11 @@ func list(v ...interface{}) []interface{} {
 	return v
 }
 
-func getSet(funcMap template.FuncMap, data map[string]interface{}) (func(string, any) string, func(string) string) {
-	return func(name string, variable any) string {
+func getSet(funcMap template.FuncMap, data map[string]interface{}) (func(string) string, func(string, any) string, func(string) string) {
+	return func(name string) string {
+			return data[name].(string)
+		},
+		func(name string, variable any) string {
 			variableType := reflect.ValueOf(variable).Type()
 			if variableType.Kind() == reflect.Map {
 				if variableType.Elem().Kind() == reflect.String {
@@ -187,7 +195,7 @@ func Generate(sourceLink, inBase, inRelativePath, outFile string) ([]Change, err
 	inFile := filepath.Join(inBase, inRelativePath)
 
 	localTemplateFuncs := copyMap(templateFuncs)
-	localTemplateFuncs["set"], localTemplateFuncs["partial"] = getSet(localTemplateFuncs, make(map[string]interface{}))
+	localTemplateFuncs["get"], localTemplateFuncs["set"], localTemplateFuncs["partial"] = getSet(localTemplateFuncs, make(map[string]interface{}))
 	tpl := template.New(inFile)
 	tpl.Funcs(localTemplateFuncs)
 
