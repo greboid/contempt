@@ -1,4 +1,4 @@
-module github.com/csmith/contempt
+module github.com/greboid/contempt
 
 go 1.20
 
