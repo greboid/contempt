@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/csmith/contempt"
-	"github.com/csmith/contempt/sources"
 	"github.com/csmith/envflag"
+	"github.com/greboid/contempt"
+	"github.com/greboid/contempt/sources"
 	"golang.org/x/exp/slices"
 )
 

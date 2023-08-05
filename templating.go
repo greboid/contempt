@@ -13,7 +13,7 @@ import (
 	"sync"
 	"text/template"
 
-	"github.com/csmith/contempt/sources"
+	"github.com/greboid/contempt/sources"
 )
 
 var templateFuncs template.FuncMap

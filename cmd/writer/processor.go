@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 
-	"github.com/csmith/contempt/sources"
+	"github.com/greboid/contempt/sources"
 )
 
 // Processor is responsible for processing a single type of Contempt directive within a Dockerfile/Containerfile.
