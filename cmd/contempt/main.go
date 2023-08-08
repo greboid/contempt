@@ -76,6 +76,7 @@ func main() {
 					"--timestamp",
 					"0",
 					"--layers",
+					"--identity-label=false",
 					"--tag",
 					imageName,
 					filepath.Join(flag.Arg(1), projects[i]),
