@@ -3,12 +3,10 @@ package contempt
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"sync"
 	"text/template"
@@ -20,31 +18,32 @@ var templateFuncs template.FuncMap
 
 func init() {
 	templateFuncs = template.FuncMap{
-		"image":               image,
-		"alpine_packages":     alpinePackages,
-		"github_tag":          gitHubTag,
-		"prefixed_github_tag": prefixedGitHubTag,
-		"git_tag":             gitTag,
-		"prefixed_git_tag":    prefixedGitTag,
-		"registry":            sources.Registry,
-		"regex_url_content":   regexURLContent,
-		"increment_int":       incrementByOne,
-		"list":                list,
-		"tagsafe":             tagsafe,
+		"image":                image,
+		"alpine_packages":      alpinePackages,
+		"github_tag":           gitHubTag,
+		"prefixed_github_tag":  prefixedGitHubTag,
+		"git_tag":              gitTag,
+		"prefixed_git_tag":     prefixedGitTag,
+		"registry":             sources.Registry,
+		"regex_url_content":    regexURLContent,
+		"checkout_tag":         checkoutTag,
+		"checkout_commit":      checkoutCommit,
+		"copy_directories":     copyDirectories,
+		"create_volumes":       createVolumes,
+		"install_build_deps":   installBuildDeps,
+		"install_run_deps":     installRunDeps,
+		"go_build":             goBuild,
+		"from_base_add_binary": fromBaseAddBinary,
+		"tagify":               tagify,
+		"list":                 list,
+		"increment_int":        incrementByOne,
+		"tagsafe":              tagsafe,
 	}
 	addRelease(templateFuncs, "alpine", sources.LatestAlpineRelease)
 	addRelease(templateFuncs, "golang", sources.LatestGolangRelease)
 	addRelease(templateFuncs, "postgres13", sources.LatestPostgresRelease("13"))
 	addRelease(templateFuncs, "postgres14", sources.LatestPostgresRelease("14"))
 	addRelease(templateFuncs, "postgres15", sources.LatestPostgresRelease("15"))
-}
-
-func copyMap[K, V comparable](m map[K]V) map[K]V {
-	result := make(map[K]V)
-	for k, v := range m {
-		result[k] = v
-	}
-	return result
 }
 
 func image(ref string) string {
@@ -133,60 +132,8 @@ func addRelease(funcs template.FuncMap, name string, provider func() (version, u
 	}
 }
 
-func tagsafe(tag string) string {
-	return strings.ReplaceAll(tag, "-", "")
-}
-
 func incrementByOne(x int) int {
 	return x + 1
-}
-
-func list(v ...interface{}) []interface{} {
-	return v
-}
-
-func getSet(funcMap template.FuncMap, data map[string]interface{}) (func(string) string, func(string, any) string, func(string) string) {
-	return func(name string) string {
-			return data[name].(string)
-		},
-		func(name string, variable any) string {
-			variableType := reflect.ValueOf(variable).Type()
-			if variableType.Kind() == reflect.Map {
-				if variableType.Elem().Kind() == reflect.String {
-					data[name] = variable.(map[string]string)
-				} else if variableType.Elem().Kind() == reflect.Int {
-					data[name] = variable.(map[string]int)
-				} else if variableType.Elem().Kind() == reflect.Interface {
-					data[name] = variable.(map[string]interface{})
-				}
-			} else if variableType.Kind() == reflect.Slice {
-				if variableType.Elem().Kind() == reflect.String {
-					data[name] = variable.([]string)
-				} else if variableType.Elem().Kind() == reflect.Int {
-					data[name] = variable.(map[string]int)
-				} else if variableType.Elem().Kind() == reflect.Interface {
-					data[name] = variable.([]interface{})
-				}
-			} else {
-				data[name] = variable
-			}
-			return ""
-		},
-		func(name string) string {
-			inFile := filepath.Join(flag.Arg(0), "./_partials", name)
-			tpl := template.New(inFile)
-			tpl.Funcs(funcMap)
-
-			if _, err := tpl.ParseFiles(inFile); err != nil {
-				log.Fatalf("unable to parse partial %s: %v", inFile, err)
-			}
-
-			writer := &bytes.Buffer{}
-			if err := tpl.ExecuteTemplate(writer, filepath.Base(inFile), data); err != nil {
-				log.Fatalf("unable to parse partial %s: %v", inFile, err)
-			}
-			return writer.String()
-		}
 }
 
 func Generate(sourceLink, inBase, inRelativePath, outFile string) ([]Change, error) {
