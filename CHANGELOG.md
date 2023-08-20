@@ -1,14 +1,18 @@
 # Unreleased
 
+# 1.7.2
+
+- Further fix for randomly choosing between multiple tags with the same semver.
+
 # 1.7.1
 
 - Update gitrefs dependency, which fixes issue where contempt will randomly
-  chose between tags if they're all the same semver (e.g. `v1.2.3` and `1.2.3`)
+  choose between tags if they're all the same semver (e.g. `v1.2.3` and `1.2.3`)
 
 # v1.7.0
 
 - Add orchestrator binary, for generating configs based on the dependencies between projects.
-  This can be used to (for example) generate a GitHub Actions workflow file which contains a
+  This can be used to (for example) generate a GitHub Actions workflow file that contains a
   separate job for each project, with the dependencies properly expressed between them. A
   future version of contempt will better support this single-project-at-a-time usecase.
 
