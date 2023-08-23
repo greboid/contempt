@@ -1,5 +1,10 @@
 # Unreleased
 
+# 1.7.4
+
+- Revert `--identity-label=false` change as it's not supported by the version
+  of Buildah currently deployed on GitHub Actions.
+
 # 1.7.3
 
 - Add logging for commands that are executed on the host, and automatically
