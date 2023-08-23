@@ -1,5 +1,10 @@
 # Unreleased
 
+# 1.7.3
+
+- Add logging for commands that are executed on the host, and automatically
+  query the version of buildah and git when running with `--commit` or `--build`
+
 # 1.7.2
 
 - Further fix for randomly choosing between multiple tags with the same semver.

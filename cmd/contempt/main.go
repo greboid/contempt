@@ -48,6 +48,8 @@ func main() {
 		log.Fatalf("Failed to find projects: %v", err)
 	}
 
+	checkExternalDependencies()
+
 	filtered := strings.Split(*filter, ",")
 
 	for i := range projects {
@@ -130,23 +132,38 @@ func doCommit(project string, changes []contempt.Change) error {
 }
 
 func runGitCommand(args ...string) error {
-	gitCommand := exec.Command(
+	return runCommand(exec.Command(
 		"git",
 		args...,
-	)
-	gitCommand.Stdout = os.Stdout
-	gitCommand.Stderr = os.Stderr
-	return gitCommand.Run()
+	))
 }
 
 func runBuildahCommand(args ...string) error {
-	buildahCommand := exec.Command(
+	return runCommand(exec.Command(
 		"/usr/bin/buildah",
 		args...,
-	)
-	buildahCommand.Stdout = os.Stdout
-	buildahCommand.Stderr = os.Stderr
-	return buildahCommand.Run()
+	))
+}
+
+func runCommand(cmd *exec.Cmd) error {
+	log.Printf("Running \"%s\"", strings.Join(cmd.Args, "\" \""))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func checkExternalDependencies() {
+	if *build || *forceBuild {
+		if err := runBuildahCommand("--version"); err != nil {
+			log.Fatalf("Contempt is configured to build, but buildah doesn't seem to be working: %v", err)
+		}
+	}
+
+	if *commit {
+		if err := runGitCommand("--version"); err != nil {
+			log.Fatalf("Contempt is configured to commit, but git doesn't seem to be working: %v", err)
+		}
+	}
 }
 
 func formatChanges(changes []contempt.Change) string {
