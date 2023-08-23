@@ -187,11 +187,19 @@ the given prefix from tag names before comparing them using semver.
 
 ```gotemplate
 {{regex_url_content "google_button" "https://www.google.com/" "I'm feeling (L[a-z]+)"}}
+```
 
 Requests the given URL over HTTP and attempts to match the regular expression.
 Returns the text captured by the first capturing group in the regex.
 The first argument is a friendly name used for logging and BOM tracking.
+
+### Increment int
+
+```gotemplate
+{{increment_int 3}}
 ```
+
+Returns the given integer incremented by one.
 
 ## Dealing with registry credentials
 

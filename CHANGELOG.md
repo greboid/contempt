@@ -3,6 +3,8 @@
 # 1.7.2
 
 - Further fix for randomly choosing between multiple tags with the same semver.
+- Add `increment_int` template function (thanks @Greboid).
+- Pass `--identity-label=false` to Buildah to make builds more reproducible (thanks @Greboid).
 
 # 1.7.1
 
