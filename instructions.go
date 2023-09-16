@@ -19,7 +19,7 @@ func copyMap[K, V comparable](m map[K]V) map[K]V {
 	return result
 }
 
-func list(v ...interface{}) []interface{} {
+func list(v ...string) []string {
 	return v
 }
 
