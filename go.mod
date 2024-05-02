@@ -8,7 +8,7 @@ require (
 	github.com/csmith/gitrefs v1.2.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/hashicorp/go-version v1.6.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20220317015231-48e79f11773a
 	gopkg.in/osteele/liquid.v1 v1.2.4
 	gopkg.in/yaml.v2 v2.4.0
