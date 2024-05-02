@@ -2,11 +2,16 @@ package sources
 
 import (
 	"log"
+	"net/url"
 )
 
-func LatestAlpineRelease() (latest string, url string, checksum string) {
-	const (
-		alpineBaseUrl      = "https://mirrors.melbourne.co.uk/alpine/latest-stable/releases/x86_64/"
+func LatestAlpineRelease() (latest string, downloadUrl string, checksum string) {
+	alpineBaseUrl, err := url.JoinPath(*alpineMirror, "latest-stable/releases/x86_64/")
+	if err != nil {
+		log.Fatalf("Unable to build path to alpine repo: %v", err)
+	}
+
+	var (
 		alpineReleaseIndex = alpineBaseUrl + "latest-releases.yaml"
 		alpineReleaseTitle = "Mini root filesystem"
 	)

@@ -57,6 +57,8 @@ Other miscellaneous options are available:
 
 ```
 Usage of contempt:
+-alpine-mirror string
+    [ALPINE_MIRROR] Base URL of the Alpine mirror to use to query version and package info (default "https://dl-cdn.alpinelinux.org/alpine/")
 -build
     [BUILD] Whether to automatically build on successful commit
 -commit

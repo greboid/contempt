@@ -4,13 +4,17 @@ import (
 	"archive/tar"
 	"bufio"
 	"compress/gzip"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
-const apkIndexUrl = "https://mirrors.melbourne.co.uk/alpine/latest-stable/%s/x86_64/APKINDEX.tar.gz"
+var alpineMirror = flag.String("alpine-mirror", "https://dl-cdn.alpinelinux.org/alpine/", "Base URL of the Alpine mirror to use to query version and package info")
+
+const apkIndexPath = "latest-stable/%s/x86_64/APKINDEX.tar.gz"
 
 // LatestAlpinePackages returns a map of packages to their latest version. The result will include all the provided
 // package names, plus all of their direct and transitive dependencies.
@@ -59,7 +63,11 @@ func apkPackageInfos() (map[string]*packageInfo, error) {
 	apkPackageCache = make(map[string]*packageInfo)
 	for _, repo := range []string{"community", "main"} {
 		err := func() error {
-			res, err := http.Get(fmt.Sprintf(apkIndexUrl, repo))
+			u, err := url.JoinPath(*alpineMirror, fmt.Sprintf(apkIndexPath, repo))
+			if err != nil {
+				return err
+			}
+			res, err := http.Get(u)
 			if err != nil {
 				return err
 			}

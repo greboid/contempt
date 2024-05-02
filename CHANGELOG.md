@@ -1,5 +1,11 @@
 # Unreleased
 
+# 1.8.0
+
+- Add support for setting the alpine mirror via the `--alpine-mirror` flag,
+  and change default to a working mirror.
+- Dependency updates
+
 # 1.7.4
 
 - Revert `--identity-label=false` change as it's not supported by the version
