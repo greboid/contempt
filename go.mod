@@ -3,7 +3,7 @@ module github.com/csmith/contempt
 go 1.18
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/PuerkitoBio/goquery v1.9.0
 	github.com/csmith/envflag v1.0.0
 	github.com/csmith/gitrefs v1.2.0
 	github.com/google/go-containerregistry v0.19.0
@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v24.0.0+incompatible // indirect
@@ -33,8 +33,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.1 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
-	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
