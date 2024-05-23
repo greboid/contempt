@@ -109,16 +109,18 @@ func readApkIndex(reader io.Reader) (map[string]*packageInfo, error) {
 		}
 
 		if header.Typeflag == tar.TypeReg && header.Name == "APKINDEX" {
-			return readApkIndexContent(tr), nil
+			return readApkIndexContent(tr)
 		}
 	}
 	return res, nil
 }
 
 // readApkIndexContent reads an APKINDEX file, parsing out the contained packages.
-func readApkIndexContent(reader io.Reader) map[string]*packageInfo {
+func readApkIndexContent(reader io.Reader) (map[string]*packageInfo, error) {
 	res := make(map[string]*packageInfo)
 	scanner := bufio.NewScanner(reader)
+	buf := make([]byte, 0, 1024*1024)
+	scanner.Buffer(buf, 1024*1024)
 
 	current := &packageInfo{}
 	for scanner.Scan() {
@@ -151,7 +153,11 @@ func readApkIndexContent(reader io.Reader) map[string]*packageInfo {
 		}
 	}
 
-	return res
+	if scanner.Err() != nil {
+		return nil, fmt.Errorf("unable to read index: %v", scanner.Err())
+	}
+
+	return res, nil
 }
 
 // packageInfo describes a package available in a repository.

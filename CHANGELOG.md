@@ -1,5 +1,12 @@
 # Unreleased
 
+# 1.8.1
+
+- If a scanner error occurs while reading the Alpine APK index, it is now
+  propagated up instead of ignored
+- Fix `{{alpine_packages}}` failing for Alpine v3.20 due to extremely long lines
+  in the package index
+
 # 1.8.0
 
 - Add support for setting the alpine mirror via the `--alpine-mirror` flag,
