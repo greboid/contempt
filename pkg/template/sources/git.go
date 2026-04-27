@@ -36,7 +36,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("git:%s", repo), tag)
+				tag = writer.Write(fmt.Sprintf("git:%s", repo), tag)
 				return tag, nil
 			},
 
@@ -58,7 +58,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("git:%s", repo), strings.TrimPrefix(tag, prefix))
+				tag = writer.Write(fmt.Sprintf("git:%s", repo), strings.TrimPrefix(tag, prefix))
 				return tag, nil
 			},
 
@@ -79,7 +79,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("github:%s", repo), tag)
+				tag = writer.Write(fmt.Sprintf("github:%s", repo), tag)
 				return tag, nil
 			},
 
@@ -100,7 +100,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("git:%s", repo), tag)
+				tag = writer.Write(fmt.Sprintf("git:%s", repo), tag)
 				return tag, nil
 			},
 
@@ -122,7 +122,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("git:%s", repo), strings.TrimPrefix(tag, prefix))
+				tag = writer.Write(fmt.Sprintf("git:%s", repo), strings.TrimPrefix(tag, prefix))
 				return tag, nil
 			},
 
@@ -144,7 +144,7 @@ func GitSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("github:%s", repo), strings.TrimPrefix(tag, prefix))
+				tag = writer.Write(fmt.Sprintf("github:%s", repo), strings.TrimPrefix(tag, prefix))
 				return tag, nil
 			},
 		}

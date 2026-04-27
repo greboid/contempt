@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -29,8 +30,12 @@ func FindProjects(dir string, templateNames ...string) ([]string, map[string]str
 				project := filepath.Dir(path)
 				if _, err := os.Stat(filepath.Join(project, "IGNORE")); errors.Is(err, os.ErrNotExist) {
 					name := filepath.Base(project)
+					projectDeps, err := dependencies(project, tn)
+					if err != nil {
+						return err
+					}
 					projectTemplates[name] = tn
-					depList[name] = dependencies(project, tn)
+					depList[name] = projectDeps
 				}
 			}
 		}
@@ -44,11 +49,8 @@ func FindProjects(dir string, templateNames ...string) ([]string, map[string]str
 	satisfied := func(reqs []string) bool {
 		found := 0
 		for i := range reqs {
-			for j := range res {
-				if res[j] == reqs[i] {
-					found++
-					break
-				}
+			if slices.Contains(res, reqs[i]) {
+				found++
 			}
 		}
 		return found == len(reqs)
@@ -73,12 +75,12 @@ func FindProjects(dir string, templateNames ...string) ([]string, map[string]str
 	return res, projectTemplates, nil
 }
 
-func dependencies(dir, templateName string) []string {
+func dependencies(dir, templateName string) ([]string, error) {
 	templatePath := filepath.Join(dir, templateName)
 
 	calls, err := engine.DryRun(templatePath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var res []string
@@ -89,5 +91,5 @@ func dependencies(dir, templateName string) []string {
 		}
 	}
 
-	return res
+	return res, nil
 }

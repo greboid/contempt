@@ -14,10 +14,11 @@ import (
 
 // Engine is responsible for evaluating templates and producing outputs.
 type Engine struct {
-	logger    *slog.Logger
-	functions template.FuncMap
-	bom       materials.BOM
-	includes  fs.FS
+	logger     *slog.Logger
+	functions  template.FuncMap
+	bom        materials.BOM
+	includes   fs.FS
+	versionMap map[string]string
 }
 
 // NewEngine creates a new templating engine that will read template includes
@@ -47,31 +48,31 @@ func (e *Engine) Register(source FunctionSource) {
 
 // DryRun parses and executes the template at the given path, but wraps all
 // registered functions with no-ops that simply record their arguments.
-func (e *Engine) DryRun(path string) (map[string][][]interface{}, error) {
+func (e *Engine) DryRun(path string) (map[string][][]any, error) {
 	e.logger.Debug("dry run of template", "path", path)
 	tpl := template.New(filepath.Base(path))
 	dryFuncs := template.FuncMap{}
-	calls := make(map[string][][]interface{})
+	calls := make(map[string][][]any)
 
 	for f := range e.functions {
 		out := reflect.ValueOf(e.functions[f]).Type().Out(0).Kind()
 		if out == reflect.String {
-			dryFuncs[f] = func(args ...interface{}) string {
+			dryFuncs[f] = func(args ...any) string {
 				calls[f] = append(calls[f], args)
 				return ""
 			}
 		} else if out == reflect.Slice {
-			dryFuncs[f] = func(args ...interface{}) []string {
+			dryFuncs[f] = func(args ...any) []string {
 				calls[f] = append(calls[f], args)
 				return nil
 			}
 		} else if out == reflect.Map {
-			dryFuncs[f] = func(args ...interface{}) map[string]string {
+			dryFuncs[f] = func(args ...any) map[string]string {
 				calls[f] = append(calls[f], args)
 				return nil
 			}
 		} else if out == reflect.Int {
-			dryFuncs[f] = func(args ...interface{}) int {
+			dryFuncs[f] = func(args ...any) int {
 				calls[f] = append(calls[f], args)
 				return 0
 			}
@@ -148,17 +149,62 @@ func (e *Engine) Execute(out io.Writer, path string) (materials.BOM, error) {
 	return e.bom, err
 }
 
+// ExecuteWithBOM parses the template at the given path, executes it, and writes it to
+// the given writer. Unlike Execute, it uses the provided BOM instead of resolving
+// new versions. Template functions will still be called, but their version lookups
+// are ignored in favor of the provided BOM.
+func (e *Engine) ExecuteWithBOM(out io.Writer, path string, bom materials.BOM) error {
+	e.logger.Debug("executing template with BOM", "path", path)
+	tpl := template.New(filepath.Base(path))
+	tpl.Funcs(e.functions)
+
+	// Parse includes
+	if _, err := tpl.ParseFS(e.includes, "*.gotpl"); err != nil {
+		if !strings.Contains(err.Error(), "pattern matches no files") {
+			e.logger.Error("failed to parse included templates", "err", err)
+			return err
+		}
+	}
+
+	// Parse the actual template
+	if _, err := tpl.ParseFiles(path); err != nil {
+		e.logger.Error("failed to parse template", "path", path, "err", err)
+		return err
+	}
+
+	// Set the version map for approved versions
+	e.versionMap = bom
+	e.bom = bom
+	defer func() { e.versionMap = nil }()
+
+	err := tpl.ExecuteTemplate(out, filepath.Base(path), nil)
+	if err != nil {
+		e.logger.Error("failed to execute template", "path", path, "err", err)
+		return err
+	}
+
+	return err
+}
+
 type engineBomWriter struct {
 	engine *Engine
 }
 
-func (e *engineBomWriter) Write(material, version string) {
+func (e *engineBomWriter) Write(material, version string) string {
+	if e.engine.versionMap != nil {
+		if approvedVersion, ok := e.engine.versionMap[material]; ok {
+			e.engine.logger.Debug("using approved version", "material", material, "version", approvedVersion)
+			e.engine.bom[material] = approvedVersion
+			return approvedVersion
+		}
+	}
 	e.engine.logger.Debug("gathered material", "material", material, "version", version)
 	e.engine.bom[material] = version
+	return version
 }
 
 type FunctionSource = func(BomWriter) template.FuncMap
 
 type BomWriter interface {
-	Write(material, version string)
+	Write(material, version string) string
 }

@@ -19,7 +19,7 @@ func HttpSource() template.FunctionSource {
 				if err != nil {
 					return "", err
 				}
-				writer.Write(fmt.Sprintf("regexurl:%s", name), res)
+				res = writer.Write(fmt.Sprintf("regexurl:%s", name), res)
 				return res, nil
 			},
 		}

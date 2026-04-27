@@ -13,12 +13,12 @@ func UtilSource() template.FunctionSource {
 			"increment_int": func(x int) int {
 				return x + 1
 			},
-			"map": func(pairs ...any) (map[string]interface{}, error) {
+			"map": func(pairs ...any) (map[string]any, error) {
 				if len(pairs)%2 != 0 {
 					return nil, errors.New("incorrect number of arguments")
 				}
 
-				m := make(map[string]interface{}, len(pairs)/2)
+				m := make(map[string]any, len(pairs)/2)
 				for i := 0; i < len(pairs); i += 2 {
 					k, ok := pairs[i].(string)
 					if !ok {
@@ -29,7 +29,7 @@ func UtilSource() template.FunctionSource {
 
 				return m, nil
 			},
-			"arr": func(elements ...any) []interface{} {
+			"arr": func(elements ...any) []any {
 				return elements
 			},
 		}

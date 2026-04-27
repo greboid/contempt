@@ -19,7 +19,7 @@ func AlpinePackagesSource(mirror string) template.FunctionSource {
 					return nil, err
 				}
 				for i := range res {
-					writer.Write(fmt.Sprintf("apk:%s", i), res[i])
+					res[i] = writer.Write(fmt.Sprintf("apk:%s", i), res[i])
 				}
 				return res, nil
 			},

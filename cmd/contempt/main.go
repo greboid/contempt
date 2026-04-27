@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/csmith/contempt/pkg/materials"
 	"log"
 	"os"
 	"os/exec"
@@ -12,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/csmith/contempt"
+	"github.com/csmith/contempt/pkg/materials"
 	"github.com/csmith/envflag/v2"
 	"golang.org/x/exp/slices"
 )
@@ -52,19 +52,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	contempt.InitTemplates(*registry, *alpineMirror, os.DirFS(*includesDir))
-
 	projectDir, err := filepath.Abs(flag.Arg(0))
 	if err != nil {
 		log.Fatalf("Failed to resolve project directory: %v", err)
 	}
 
-	templateNames := []string{*templateName}
-	if !templateExplicit && !outputExplicit {
-		templateNames = []string{"Dockerfile.gotpl", "Containerfile.gotpl"}
-	}
+	contempt.InitTemplates(*registry, *alpineMirror, os.DirFS(filepath.Join(projectDir, *includesDir)))
 
-	projects, projectTemplates, err := contempt.FindProjects(projectDir, templateNames...)
+	projects, _, err := contempt.FindProjects(projectDir, *templateName)
 	if err != nil {
 		log.Fatalf("Failed to find projects: %v", err)
 	}
@@ -74,61 +69,63 @@ func main() {
 	filtered := strings.Split(*filter, ",")
 
 	for i := range projects {
-		if *filter == "" || slices.Contains(filtered, projects[i]) {
-			if *workflowCommands {
-				fmt.Printf("::group::%s\n", projects[i])
-			}
-			log.Printf("Checking project %s", projects[i])
-			templateForProject := projectTemplates[projects[i]]
-			outputForProject := *outputName
-			if templateForProject == "Containerfile.gotpl" {
-				outputForProject = "Containerfile"
-			}
+		if *filter != "" && !slices.Contains(filtered, projects[i]) {
+			continue
+		}
 
-			outPath := filepath.Join(flag.Arg(1), projects[i], outputForProject)
-			changes, err := contempt.Generate(*sourceLink, flag.Arg(0), filepath.Join(projects[i], templateForProject), outPath)
-			if err != nil {
-				log.Fatalf("Failed to generate project %s: %v", projects[i], err)
-			}
+		if *workflowCommands {
+			fmt.Printf("::group::%s\n", projects[i])
+		}
 
-			if *commit {
-				if err := doCommit(projects[i], outputForProject, changes); err != nil {
-					log.Printf("Failed to commit %s: %v", projects[i], err)
-					continue
+		log.Printf("Generating project %s", projects[i])
+		outPath := filepath.Join(flag.Arg(1), projects[i], *outputName)
+
+		changes, err := contempt.Generate(*sourceLink, flag.Arg(0), filepath.Join(projects[i], *templateName), outPath)
+		if err != nil {
+			log.Fatalf("Failed to generate project %s: %v", projects[i], err)
+		}
+
+		if *commit && changes != nil && len(changes) > 0 {
+			if err := doCommit(projects[i], *outputName, changes); err != nil {
+				log.Printf("Failed to commit %s: %v", projects[i], err)
+				if *workflowCommands {
+					fmt.Printf("::endgroup::\n")
 				}
+				continue
+			}
+		}
+
+		if (*commit && *build) || *forceBuild {
+			imageName := fmt.Sprintf("%s/%s", *registry, projects[i])
+			if err := runBuildahCommand(
+				"bud",
+				"--timestamp",
+				"0",
+				"--layers",
+				"--tag",
+				imageName,
+				filepath.Join(flag.Arg(1), projects[i]),
+			); err != nil {
+				log.Fatalf("Failed to build %s: %v", projects[i], err)
 			}
 
-			if (*commit && *build) || *forceBuild {
-				imageName := fmt.Sprintf("%s/%s", *registry, projects[i])
-				if err := runBuildahCommand(
-					"bud",
-					"--timestamp",
-					"0",
-					"--layers",
-					"--tag",
-					imageName,
-					filepath.Join(flag.Arg(1), projects[i]),
-				); err != nil {
-					log.Fatalf("Failed to build %s: %v", projects[i], err)
-				}
-
-				if *push {
-					success := false
-					for r := 0; r <= *pushRetries && !success; r++ {
-						if err := runBuildahCommand("push", imageName); err == nil {
-							success = true
-						} else {
-							log.Printf("Failed to push %s [attempt %d/%d]: %v", projects[i], r+1, *pushRetries+1, err)
-						}
-					}
-					if !success {
-						log.Fatalf("Failed to push %s after %d attempts", projects[i], *pushRetries+1)
+			if *push {
+				success := false
+				for r := 0; r <= *pushRetries && !success; r++ {
+					if err := runBuildahCommand("push", imageName); err == nil {
+						success = true
+					} else {
+						log.Printf("Failed to push %s [attempt %d/%d]: %v", projects[i], r+1, *pushRetries+1, err)
 					}
 				}
+				if !success {
+					log.Fatalf("Failed to push %s after %d attempts", projects[i], *pushRetries+1)
+				}
 			}
-			if *workflowCommands {
-				fmt.Printf("::endgroup::\n")
-			}
+		}
+
+		if *workflowCommands {
+			fmt.Printf("::endgroup::\n")
 		}
 	}
 }
@@ -143,6 +140,18 @@ func doCommit(project, outputForProject string, changes []materials.Change) erro
 		return err
 	}
 
+	// Check if there are actually any staged changes to commit
+	if err := runGitCommand(
+		"-C",
+		flag.Arg(1),
+		"diff",
+		"--cached",
+		"--quiet",
+	); err == nil {
+		// No staged changes, nothing to commit
+		return nil
+	}
+
 	if err := runGitCommand(
 		"-C",
 		flag.Arg(1),
@@ -155,6 +164,38 @@ func doCommit(project, outputForProject string, changes []materials.Change) erro
 		return err
 	}
 	return nil
+}
+
+func formatChanges(changes []materials.Change) string {
+	if len(changes) == 0 {
+		return "no detected changes"
+	}
+
+	builder := strings.Builder{}
+
+	if len(changes) > 1 {
+		builder.WriteString(fmt.Sprintf("%d changes\n", len(changes)))
+
+		sort.Slice(changes, func(i, j int) bool {
+			return changes[i].Material < changes[j].Material
+		})
+	}
+
+	for i := range changes {
+		oldVersion := changes[i].Old
+		newVersion := changes[i].New
+		if oldVersion == "" && newVersion == "" {
+			builder.WriteString(fmt.Sprintf("\n%s unknown changes", changes[i].Material))
+		} else if oldVersion == "" {
+			builder.WriteString(fmt.Sprintf("\n%s (unknown)->%.8s", changes[i].Material, newVersion))
+		} else if newVersion == "" {
+			builder.WriteString(fmt.Sprintf("\n%s %.8s->(unknown)", changes[i].Material, oldVersion))
+		} else {
+			builder.WriteString(fmt.Sprintf("\n%s %.12s->%.12s", changes[i].Material, oldVersion, newVersion))
+		}
+	}
+
+	return strings.TrimPrefix(builder.String(), "\n")
 }
 
 func runGitCommand(args ...string) error {
@@ -190,36 +231,4 @@ func checkExternalDependencies() {
 			log.Fatalf("Contempt is configured to commit, but git doesn't seem to be working: %v", err)
 		}
 	}
-}
-
-func formatChanges(changes []materials.Change) string {
-	if len(changes) == 0 {
-		return "no detected changes"
-	}
-
-	builder := strings.Builder{}
-
-	if len(changes) > 1 {
-		builder.WriteString(fmt.Sprintf("%d changes\n", len(changes)))
-
-		sort.Slice(changes, func(i, j int) bool {
-			return changes[i].Material < changes[j].Material
-		})
-	}
-
-	for i := range changes {
-		oldVersion := changes[i].Old
-		newVersion := changes[i].New
-		if oldVersion == "" && newVersion == "" {
-			builder.WriteString(fmt.Sprintf("\n%s unknown changes", changes[i].Material))
-		} else if oldVersion == "" {
-			builder.WriteString(fmt.Sprintf("\n%s (unknown)->%.8s", changes[i].Material, newVersion))
-		} else if newVersion == "" {
-			builder.WriteString(fmt.Sprintf("\n%s %.8s->(unknown)", changes[i].Material, oldVersion))
-		} else {
-			builder.WriteString(fmt.Sprintf("\n%s %.12s->%.12s", changes[i].Material, oldVersion, newVersion))
-		}
-	}
-
-	return strings.TrimPrefix(builder.String(), "\n")
 }

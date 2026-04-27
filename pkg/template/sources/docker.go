@@ -38,8 +38,8 @@ func ImageSource(registry string) template.FunctionSource {
 					image = fmt.Sprintf("%s/%s", registry, ref)
 				}
 
-				writer.Write(fmt.Sprintf("image:%s", ref), strings.TrimPrefix(digest, "sha256:"))
-				return fmt.Sprintf("%s@%s", image, digest), nil
+				digest = writer.Write(fmt.Sprintf("image:%s", ref), strings.TrimPrefix(digest, "sha256:"))
+				return fmt.Sprintf("%s@sha256:%s", image, digest), nil
 			},
 		}
 	}
