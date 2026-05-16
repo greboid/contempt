@@ -99,8 +99,10 @@ func main() {
 			imageName := fmt.Sprintf("%s/%s", *registry, projects[i])
 			if err := runBuildahCommand(
 				"bud",
-				"--timestamp",
+				"--source-date-epoch",
 				"0",
+				"--rewrite-timestamp",
+				"--omit-history",
 				"--layers",
 				"--tag",
 				imageName,
