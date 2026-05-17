@@ -103,7 +103,7 @@ func main() {
 				"0",
 				"--rewrite-timestamp",
 				"--omit-history",
-				"--layers",
+				"--squash",
 				"--tag",
 				imageName,
 				filepath.Join(flag.Arg(1), projects[i]),
