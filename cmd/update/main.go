@@ -34,6 +34,7 @@ var (
 	githubPR     = flag.Bool("githubpr", false, "Raise a GitHub PR for each new version")
 	forgejoPR    = flag.Bool("forgejopr", false, "Raise a Forgejo PR for each new version")
 	updatePRs    = flag.Bool("update-prs", false, "Update all open PRs (rebase onto latest approved versions)")
+	prNumber     = flag.String("pr", "", "Specific PR number to rebase (used with -update-prs)")
 )
 
 func main() {
@@ -62,7 +63,11 @@ func main() {
 
 	if *updatePRs {
 		cli := detectCLI()
-		updateAllPRs(cli, projectDir, outputDir)
+		if *prNumber != "" {
+			updateSinglePR(cli, *prNumber, projectDir, outputDir)
+		} else {
+			updateAllPRs(cli, projectDir, outputDir)
+		}
 		return
 	}
 
@@ -196,6 +201,29 @@ func updateAllPRs(cli string, projectDir, outputDir string) {
 		}
 		updatePR(cli, prNum, projectDir, outputDir, baseBranch, materialProjects)
 	}
+}
+
+func updateSinglePR(cli string, prRef string, projectDir, outputDir string) {
+	projects, _, err := contempt.FindProjects(projectDir, *templateName)
+	if err != nil {
+		log.Fatalf("Failed to find projects: %v", err)
+	}
+
+	materialProjects := make(map[string][]string)
+	for i := range projects {
+		bom, err := contempt.CheckVersions(flag.Arg(0), filepath.Join(projects[i], *templateName))
+		if err != nil {
+			log.Fatalf("Failed to check project %s: %v", projects[i], err)
+		}
+		for material := range bom {
+			if !slices.Contains(materialProjects[material], projects[i]) {
+				materialProjects[material] = append(materialProjects[material], projects[i])
+			}
+		}
+	}
+
+	baseBranch := setupGit()
+	updatePR(cli, prRef, projectDir, outputDir, baseBranch, materialProjects)
 }
 
 func updatePR(cli string, prRef string, projectDir, outputDir, baseBranch string, materialProjects map[string][]string) {
