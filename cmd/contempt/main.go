@@ -103,6 +103,7 @@ func main() {
 				"0",
 				"--rewrite-timestamp",
 				"--omit-history",
+                                "--layers=true",
 				"--squash",
 				"--tag",
 				imageName,
