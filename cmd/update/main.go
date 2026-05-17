@@ -169,6 +169,21 @@ func updateAllPRs(cli string, projectDir, outputDir string) {
 		log.Fatalf("Failed to find projects: %v", err)
 	}
 
+	materialProjects := make(map[string][]string)
+	for i := range projects {
+		bom, err := contempt.CheckVersions(flag.Arg(0), filepath.Join(projects[i], *templateName))
+		if err != nil {
+			log.Fatalf("Failed to check project %s: %v", projects[i], err)
+		}
+		for material := range bom {
+			if !slices.Contains(materialProjects[material], projects[i]) {
+				materialProjects[material] = append(materialProjects[material], projects[i])
+			}
+		}
+	}
+
+	baseBranch := setupGit()
+
 	prList, err := runOutput(cli, "pr", "list", "--state", "open", "--json", "number", "-q", ".[].number")
 	if err != nil {
 		log.Fatalf("Failed to list open PRs: %v", err)
@@ -179,11 +194,11 @@ func updateAllPRs(cli string, projectDir, outputDir string) {
 		if prNum == "" {
 			continue
 		}
-		updatePR(cli, prNum, projectDir, outputDir, projects)
+		updatePR(cli, prNum, projectDir, outputDir, baseBranch, materialProjects)
 	}
 }
 
-func updatePR(cli string, prRef string, projectDir, outputDir string, projects []string) {
+func updatePR(cli string, prRef string, projectDir, outputDir, baseBranch string, materialProjects map[string][]string) {
 
 	body, err := runOutput(cli, "pr", "view", prRef, "--json", "body", "-q", ".body")
 	if err != nil {
@@ -211,8 +226,6 @@ func updatePR(cli string, prRef string, projectDir, outputDir string, projects [
 		log.Fatalf("Failed to get branch name for PR %s: %v", prRef, err)
 	}
 
-	baseBranch := setupGit()
-
 	if err := runSilent("git", "fetch", "origin", branchName); err != nil {
 		log.Fatalf("Failed to fetch branch %s: %v", branchName, err)
 	}
@@ -225,7 +238,7 @@ func updatePR(cli string, prRef string, projectDir, outputDir string, projects [
 		log.Fatalf("Failed to reset branch %s to %s: %v", branchName, baseBranch, err)
 	}
 
-	if err := regenerateProjects(projects, projectDir, outputDir, nil); err != nil {
+	if err := regenerateProjects(materialProjects[material], projectDir, outputDir, nil); err != nil {
 		log.Fatalf("Failed to regenerate projects: %v", err)
 	}
 
