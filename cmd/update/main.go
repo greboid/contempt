@@ -266,7 +266,8 @@ func updatePR(cli string, prRef string, projectDir, outputDir, baseBranch string
 		log.Fatalf("Failed to reset branch %s to %s: %v", branchName, baseBranch, err)
 	}
 
-	if err := regenerateProjects(materialProjects[material], projectDir, outputDir, nil); err != nil {
+	overrides := materials.BOM{material: version}
+	if err := regenerateProjects(materialProjects[material], projectDir, outputDir, overrides); err != nil {
 		log.Fatalf("Failed to regenerate projects: %v", err)
 	}
 
